@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flight Management Application</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <h1>Flight Management System</h1>
+
+    <h2>Create a New Flight</h2>
+    <table>
+    <form id="flightForm">
+        <tr>
+        <td width="50%"><label for="flightNumber">Flight Number:</label></td>
+        <td><input type="text" id="flightNumber" name="flightNumber" required></td>
+        </tr>
+
+        <tr>
+        <td><label for="destination">Destination:</label></td>
+        <td><input type="text" id="destination" name="destination" required></td>
+        </tr>
+
+        <tr>
+        <td><label for="departureTime">Departure Time:</label></td>
+        <td><input type="text" id="departureTime" name="departureTime" required></td>
+        </tr>
+
+        <tr>
+        <td colspan="2"><button type="submit">Create Flight</button></td>
+        </tr>
+    </form>
+    </table>
+    <h3>Flights List</h3>
+    <ul id="flightsList"></ul>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const flightForm = document.getElementById("flightForm");
+            const flightsList = document.getElementById("flightsList");
+
+            flightForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const flightNumber = document.getElementById("flightNumber").value;
+                const destination = document.getElementById("destination").value;
+                const departureTime = document.getElementById("departureTime").value;
+
+                fetch('/flights', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        flightNumber,
+                        destination,
+                        departureTime
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    flightForm.reset();
+                    fetchFlights();
+                });
+            });
+
+            function fetchFlights() {
+                fetch('/flights')
+                .then(response => response.json())
+                .then(data => {
+                    flightsList.innerHTML = "";
+                    data.flights.forEach(flight => {
+                        const li = document.createElement("li");
+                        li.textContent = `Flight Number: ${flight.flightNumber}, Destination: ${flight.destination}, Departure Time: ${flight.departureTime}`;
+                        flightsList.appendChild(li);
+                    });
+                });
+            }
+
+            fetchFlights();
+        });
+    </script>
+</body>
+</html>
